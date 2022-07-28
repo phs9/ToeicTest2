@@ -1,9 +1,10 @@
 package com.sang.toeictest2.Service.Impl;
 
-import com.sang.toeictest2.DTO.Request.AccountDTORe;
 import com.sang.toeictest2.DTO.Response.AccountDTO;
 import com.sang.toeictest2.Entity.Account;
+import com.sang.toeictest2.Entity.Result;
 import com.sang.toeictest2.Repository.AccountRepository;
+import com.sang.toeictest2.Repository.ResultRepository;
 import com.sang.toeictest2.Service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,18 +17,25 @@ import java.util.stream.Collectors;
 public class AdminServiceImpl implements AdminService {
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    ResultRepository resultRepository;
+
     @Autowired
     PasswordEncoder passwordEncoder;
 
     @Override
     public boolean createAccount(Account account) {
-        account.setPassword(passwordEncoder.encode("111111"));
+        if (account.getPassword() != null)
+            account.setPassword(passwordEncoder.encode(account.getPassword()));
         accountRepository.save(account);
         return true;
     }
 
     @Override
     public boolean deleteAccount(Long id) {
+        List<Result> results = resultRepository.findByAccount(accountRepository.getById(id));
+        resultRepository.deleteAll(results);
         accountRepository.deleteById(id);
         return true;
     }
@@ -47,7 +55,14 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean updateAccount(AccountDTORe accountDTORe, Long id) {
-        return false;
+    public boolean updateAccount(Account accountRe, Long id) {
+        Account account = accountRepository.getById(id);
+        account.setEmail(accountRe.getEmail());
+        account.setFullName(accountRe.getFullName());
+        account.setPhone(accountRe.getPhone());
+        account.setAddress(accountRe.getAddress());
+        account.setRole(accountRe.getRole());
+        accountRepository.save(account);
+        return true;
     }
 }

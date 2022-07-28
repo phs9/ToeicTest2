@@ -35,7 +35,7 @@ public class UserController {
 //    }
 
     @GetMapping("/exam")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER')||hasRole('ADMIN')")
     public ResponseEntity<?> listExam() {
         List<Exam> exams = this.examService.getListExam();
         return new ResponseEntity<>(exams, HttpStatus.OK);

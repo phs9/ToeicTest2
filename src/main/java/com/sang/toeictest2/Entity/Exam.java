@@ -19,7 +19,6 @@ public class Exam {
     private long id;
 
     private String name;
-    private String time;
     private String date;
     private Integer numberOfQuestion;
     private Integer examTime;
