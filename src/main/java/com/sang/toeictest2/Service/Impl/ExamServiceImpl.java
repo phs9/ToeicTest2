@@ -14,7 +14,9 @@ import com.sang.toeictest2.Service.ExamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -111,6 +113,7 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public boolean updateExamRefQ(Long id, List<Long> questionIDs) {
+        String timeStamp = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
         Exam exam = this.examRepository.getById(id);
         List<ExamRefQuestion> examRefQuestions = examRefQuestionRepository.findByExam(exam);
         List<ExamRefQuestion> examRefQuestionsNew = new ArrayList<>();
@@ -124,7 +127,67 @@ public class ExamServiceImpl implements ExamService {
             examRefQuestionRepository.deleteAll(examRefQuestions);
             examRefQuestionRepository.saveAll(examRefQuestionsNew);
         } else examRefQuestionRepository.deleteAll(examRefQuestions);
+        exam.setDate(timeStamp);
+        examRepository.save(exam);
         return true;
     }
 
+    @Override
+    public Long createExam(ExamDTO examDTO) {
+        String timeStamp = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
+        Exam exam = new Exam();
+        exam.setName(examDTO.getName());
+        exam.setNumberOfQuestion(examDTO.getNumberOfQuestion());
+        exam.setExamTime(examDTO.getTime());
+        exam.setDate(timeStamp);
+        examRepository.save(exam);
+        return exam.getId();
+    }
+
+    @Override
+    public boolean updateExam(Long id, ExamDTO examDTO) {
+        String timeStamp = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
+        Exam exam = examRepository.getById(examDTO.getId());
+        exam.setName(examDTO.getName());
+        exam.setNumberOfQuestion(examDTO.getNumberOfQuestion());
+        exam.setExamTime(examDTO.getTime());
+        exam.setDate(timeStamp);
+        examRepository.save(exam);
+        return true;
+    }
+
+    @Override
+    public List<Question> getListQuestion() {
+        return questionRepository.findAll();
+    }
+
+    @Override
+    public boolean createQuestion(List<Question> questions) {
+        questionRepository.saveAll(questions);
+        return true;
+    }
+
+    @Override
+    public boolean updateQuestion(Long id, Question questionNew) {
+        Question question = questionRepository.getById(id);
+        question.setPart(questionNew.getPart());
+        question.setGroup(questionNew.getGroup());
+        question.setAudio(questionNew.getAudio());
+        question.setPicture(questionNew.getPicture());
+        question.setThread(questionNew.getThread());
+        question.setGroup_thread(questionNew.getGroup_thread());
+        question.setAnswerA(questionNew.getAnswerA());
+        question.setAnswerB(questionNew.getAnswerB());
+        question.setAnswerC(questionNew.getAnswerC());
+        question.setAnswerD(questionNew.getAnswerD());
+        question.setCorectAnswer(questionNew.getCorectAnswer());
+        questionRepository.save(question);
+        return true;
+    }
+
+    @Override
+    public boolean deleteQuestion(Long id){
+        questionRepository.delete(questionRepository.getById(id));
+        return true;
+    }
 }

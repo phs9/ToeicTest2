@@ -24,6 +24,8 @@ public class Question {
     private String answerD;
     private String corectAnswer;
     private int part;
+
+    @Column(name="`group`")
     private Long group;
 
 

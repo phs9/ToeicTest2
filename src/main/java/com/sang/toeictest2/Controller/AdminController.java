@@ -1,9 +1,9 @@
 package com.sang.toeictest2.Controller;
 
-import com.sang.toeictest2.DTO.Request.AccountDTORe;
 import com.sang.toeictest2.DTO.Response.AccountDTO;
 import com.sang.toeictest2.DTO.Response.ExamDTO;
 import com.sang.toeictest2.Entity.Account;
+import com.sang.toeictest2.Entity.Question;
 import com.sang.toeictest2.Service.AdminService;
 import com.sang.toeictest2.Service.ExamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,10 +80,54 @@ public class AdminController {
         return new ResponseEntity<>(exam, HttpStatus.OK);
     }
 
+    @PostMapping("/createExam")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createExam(@RequestBody ExamDTO examDTO) {
+        Long id = this.examService.createExam(examDTO);
+        return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
+    @PutMapping("/updateExam/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateExam(@PathVariable("id") Long id, @RequestBody ExamDTO examDTO) {
+        boolean status = this.examService.updateExam(id, examDTO);
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
     @PostMapping("/updateExamRefQ/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateExamRefQ(@PathVariable("id") Long id, @RequestBody List<Long> questionIDs) {
         boolean status = this.examService.updateExamRefQ(id, questionIDs);
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
+
+    @GetMapping("/question")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getListQuestion() {
+        List<Question> questions = this.examService.getListQuestion();
+        return new ResponseEntity<>(questions, HttpStatus.OK);
+    }
+
+    @PostMapping("/question")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createQuestion(@RequestBody List<Question> questions) {
+        boolean status = this.examService.createQuestion(questions);
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    @PutMapping("/question/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateQuestion(@PathVariable("id") Long id, @RequestBody Question question) {
+        boolean status = this.examService.updateQuestion(id, question);
+        return new ResponseEntity<>(status,HttpStatus.OK);
+    }
+
+    @DeleteMapping("/question/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteQuestion(@PathVariable("id") Long id){
+        boolean status = this.examService.deleteQuestion(id);
+        return new ResponseEntity<>(status,HttpStatus.OK);
+    }
+
+
 }
