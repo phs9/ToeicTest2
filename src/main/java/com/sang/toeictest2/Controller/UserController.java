@@ -50,7 +50,7 @@ public class UserController {
 
     @PostMapping("/exam/{id}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> subitExam(@PathVariable("id") Long id,
+    public ResponseEntity<?> submitExam(@PathVariable("id") Long id,
                           @RequestBody List<String> listAnswer) {
         ResultDTO result = this.resultService.submitExam(id, listAnswer);
         //int point = this.resultService.submitExam(id, listAnswer);

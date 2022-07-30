@@ -11,7 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -119,15 +124,67 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateQuestion(@PathVariable("id") Long id, @RequestBody Question question) {
         boolean status = this.examService.updateQuestion(id, question);
-        return new ResponseEntity<>(status,HttpStatus.OK);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @DeleteMapping("/question/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteQuestion(@PathVariable("id") Long id){
+    public ResponseEntity<?> deleteQuestion(@PathVariable("id") Long id) {
         boolean status = this.examService.deleteQuestion(id);
-        return new ResponseEntity<>(status,HttpStatus.OK);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
+    @PostMapping("/upload/{folder}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> uploadFile(@PathVariable("folder") String folder, @RequestBody MultipartFile[] files) {
+        Arrays.asList(files).stream().forEach(file -> {
+            try {
+                file.transferTo(new File("C:\\MyWebData\\" + folder + "\\", file.getOriginalFilename()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
 
+    public class FileObj {
+        public String filename;
+        public Long size;
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
+
+        public void setSize(Long size) {
+            this.size = size;
+        }
+    }
+
+    @GetMapping("/file/{folder}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getListFile(@PathVariable("folder") String folder) {
+        List<Object> listFile = new ArrayList<>();
+        File[] files = new File("C:\\MyWebData\\" + folder).listFiles();
+        for (File file : files) {
+            if (file.isFile()) {
+                FileObj obj = new FileObj();
+                obj.setFilename(file.getName());
+                obj.setSize(file.length());
+                listFile.add(obj);
+            }
+        }
+        return new ResponseEntity<>(listFile, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/file/{folder}/{filename}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteFile(@PathVariable("folder") String folder, @PathVariable("filename") String filename){
+        File file = new File("C:\\MyWebData\\"+folder+"\\"+filename);
+        file.delete();
+        boolean status = true;
+        return new ResponseEntity<>(status,HttpStatus.OK);
+    }
 }
+
+
+
