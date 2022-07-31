@@ -15,6 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -178,11 +181,22 @@ public class AdminController {
 
     @DeleteMapping("/file/{folder}/{filename}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteFile(@PathVariable("folder") String folder, @PathVariable("filename") String filename){
-        File file = new File("C:\\MyWebData\\"+folder+"\\"+filename);
+    public ResponseEntity<?> deleteFile(@PathVariable("folder") String folder, @PathVariable("filename") String filename) {
+        File file = new File("C:\\MyWebData\\" + folder + "\\" + filename);
         file.delete();
         boolean status = true;
-        return new ResponseEntity<>(status,HttpStatus.OK);
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    @PostMapping("/renameFile/{folder}/{filename}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> renameFile(@PathVariable("folder") String folder, @PathVariable("filename") String filename, @RequestBody String newName) throws IOException {
+        //File file = new File("C:\\MyWebData\\" + folder + "\\" + filename);
+        Path file = Paths.get("C:\\MyWebData\\" + folder + "\\" + filename);
+        Files.move(file, file.resolveSibling(newName.substring(0,newName.length()-1)));
+        //File newFileName = new File(file.getParent(), newName);
+        boolean status = true;
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }
 

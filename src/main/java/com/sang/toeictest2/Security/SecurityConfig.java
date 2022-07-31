@@ -55,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandel).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/login","/api/forgot","/static/**","/image/**","/api/create","/api/user/file/**").permitAll()
+                .authorizeRequests().antMatchers("/api/login","/api/register","/api/forgot","/static/**","/image/**","/api/create","/api/user/file/**").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwt(), UsernamePasswordAuthenticationFilter.class);
