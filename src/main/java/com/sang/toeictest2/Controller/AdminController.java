@@ -4,6 +4,7 @@ import com.sang.toeictest2.DTO.Response.AccountDTO;
 import com.sang.toeictest2.DTO.Response.ExamDTO;
 import com.sang.toeictest2.Entity.Account;
 import com.sang.toeictest2.Entity.Question;
+import com.sang.toeictest2.Repository.ResultRepository;
 import com.sang.toeictest2.Service.AdminService;
 import com.sang.toeictest2.Service.ExamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class AdminController {
 
     @Autowired
     ExamService examService;
+
+    @Autowired
+    ResultRepository resultRepository;
 
     @GetMapping("/account")
     @PreAuthorize("hasRole('ADMIN')")
@@ -197,6 +201,54 @@ public class AdminController {
         //File newFileName = new File(file.getParent(), newName);
         boolean status = true;
         return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    public class DashBoards{
+        public int number_of_acc;
+        public int number_of_result;
+        public int number_of_exam;
+        public int number_of_question;
+        public int number_of_audio;
+        public int number_of_picture;
+
+        public void setNumber_of_acc(int number_of_acc) {
+            this.number_of_acc = number_of_acc;
+        }
+
+        public void setNumber_of_result(int number_of_result) {
+            this.number_of_result = number_of_result;
+        }
+
+        public void setNumber_of_exam(int number_of_exam) {
+            this.number_of_exam = number_of_exam;
+        }
+
+        public void setNumber_of_question(int number_of_question) {
+            this.number_of_question = number_of_question;
+        }
+
+        public void setNumber_of_audio(int number_of_audio) {
+            this.number_of_audio = number_of_audio;
+        }
+
+        public void setNumber_of_picture(int number_of_picture) {
+            this.number_of_picture = number_of_picture;
+        }
+    }
+
+    @GetMapping("/dashboards")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> dashboard(){
+        DashBoards dashBoards = new DashBoards();
+        dashBoards.setNumber_of_acc(this.adminService.getAllAccount().size());
+        dashBoards.setNumber_of_result(this.resultRepository.findAll().size());
+        dashBoards.setNumber_of_exam(this.examService.getListExam().size());
+        dashBoards.setNumber_of_question(this.examService.getListQuestion().size());
+        File[] filesA = new File("C:\\MyWebData\\Audio").listFiles();
+        File[] filesP = new File("C:\\MyWebData\\Picture").listFiles();
+        dashBoards.setNumber_of_audio(filesA.length);
+        dashBoards.setNumber_of_picture(filesP.length);
+        return new ResponseEntity<>(dashBoards,HttpStatus.OK);
     }
 }
 

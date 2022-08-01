@@ -1,5 +1,6 @@
 package com.sang.toeictest2.Controller;
 
+import com.sang.toeictest2.DTO.Request.AccountDTORe;
 import com.sang.toeictest2.DTO.Request.AccountRequest;
 import com.sang.toeictest2.DTO.Response.AccountDTO;
 import com.sang.toeictest2.DTO.Response.AccountDTORes;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +37,9 @@ public class AuthController {
 
     @Autowired
     AdminService adminService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<?> authencateUser(@RequestBody AccountRequest accountRequest) {
@@ -61,7 +66,7 @@ public class AuthController {
     }
 
     @GetMapping("/accInfo")
-    public ResponseEntity<?> getAccInfo(){
+    public ResponseEntity<?> getAccInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
@@ -73,7 +78,36 @@ public class AuthController {
         accountDTO.setAddress(account.getAddress());
         accountDTO.setRole(account.getRole());
 
-        return new ResponseEntity<>(accountDTO,HttpStatus.OK);
+        return new ResponseEntity<>(accountDTO, HttpStatus.OK);
     }
 
+    @PutMapping("/updateAccInfo")
+    public ResponseEntity<?> updateAccInfo(@RequestBody AccountDTORe accountDTORe) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        Account account = this.accountRepository.findByEmail(username).get();
+        account.setFullName(accountDTORe.getFullName());
+        account.setPhone(accountDTORe.getPhone());
+        account.setAddress(accountDTORe.getAddress());
+
+        accountRepository.save(account);
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+
+
+    @PutMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody List<String> pass) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        Account account = this.accountRepository.findByEmail(username).get();
+        if (passwordEncoder.matches(pass.get(0), account.getPassword())) {
+            account.setPassword(passwordEncoder.encode(pass.get(1)));
+            accountRepository.save(account);
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }
+
+        else return new ResponseEntity<>(false,HttpStatus.BAD_REQUEST);
+    }
 }
